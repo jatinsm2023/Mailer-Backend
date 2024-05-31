@@ -1,6 +1,5 @@
 const nodemailer = require("nodemailer");
 
-
 const signup = async (req, res) => {
   const transporter = nodemailer.createTransport({
     host: "smtp.ethereal.email",
@@ -30,45 +29,59 @@ const signup = async (req, res) => {
 };
 
 const getbill = (req, res) => {
-  const { usermail, mailbody, mailsubject,email, emailpassword} = req.body;
+  const { RECIEVER_MAILS, MAIL_BODY, MAIL_SUBJECT, EMAIL, EMAIL_APP_PASSWORD } = req.body;
+  const files = req.files;
+  const receiveremails = JSON.parse(RECIEVER_MAILS);
+  // console.log(receiveremails)
+  // console.log(files); 
   let config = {
     service: "gmail",
     auth: {
-      user: email,
-      pass: emailpassword,
+      user: EMAIL,
+      pass: EMAIL_APP_PASSWORD,
     },
   };
 
   let transporter = nodemailer.createTransport(config);
-  let all_mail_send = true;
-  // console.log(mailbody)
-  for (let i = 0; i < usermail.length; i++) {
-    let message = {
-      from: email,
-      to: usermail[i],
-      subject: mailsubject,
-      html: `<div style="white-space: pre-wrap;">${mailbody}</div>`,
-     
-    };
-    transporter
-      .sendMail(message)
-      .then(() => {
-        console.log(i + 1, "mail sent");
-      })
-      .catch((error) => {
-        console.log("Error sending mail:", error);
-        all_mail_send = false;
+
+  // console.log(MAIL_BODY)
+  let attachments = files.map((file) => ({
+    filename: file.originalname,
+    content: file.buffer,
+  }));
+ 
+  let emailPromises = receiveremails.map((receiveremail, i) => {
+    return new Promise((resolve, reject) => {
+      let message = {
+        from: EMAIL,
+        to: receiveremails[i],
+        subject: MAIL_SUBJECT,
+        html: `<div style="white-space: pre-wrap;">${MAIL_BODY}</div>`,
+        attachments: attachments,
+      };
+      transporter.sendMail(message, (error, info) => {
+        if (error) {
+          console.log(`Error occurred while sending email to ${receiveremail}: ${error.message}`);
+          reject(error);
+        } else {
+          console.log(`Email sent to ${receiveremail}: ${info.response}`);
+          resolve(info);
+        }
       });
-  }
-  if (all_mail_send === true) {
+    });
+  });
+  
+  Promise.all(emailPromises)
+  .then(() => {
     return res.status(201).json({
       msg: "Check Mail",
     });
-  } else {
+  })
+  .catch((error) => {
     return res.status(404).json({
       msg: "Error Occured",
     });
-  }
+  });
 };
 
 module.exports = {
