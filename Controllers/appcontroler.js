@@ -52,22 +52,24 @@ const getbill = (req, res) => {
  
   let emailPromises = receiveremails.map((receiveremail, i) => {
     return new Promise((resolve, reject) => {
-      let message = {
-        from: EMAIL,
-        to: receiveremails[i],
-        subject: MAIL_SUBJECT,
-        html: `<div style="white-space: pre-wrap;">${MAIL_BODY}</div>`,
-        attachments: attachments,
-      };
-      transporter.sendMail(message, (error, info) => {
-        if (error) {
-          console.log(`Error occurred while sending email to ${receiveremail}: ${error.message}`);
-          reject(error);
-        } else {
-          console.log(`Email sent to ${receiveremail}: ${info.response}`);
-          resolve(info);
-        }
-      });
+      setTimeout(() => {
+        let message = {
+          from: EMAIL,
+          to: receiveremails[i],
+          subject: MAIL_SUBJECT,
+          html: `<div style="white-space: pre-wrap;">${MAIL_BODY}</div>`,
+          attachments: attachments,
+        };
+        transporter.sendMail(message, (error, info) => {
+          if (error) {
+            console.log(`Error occurred while sending email to ${receiveremail}: ${error.message}`);
+            reject(error);
+          } else {
+            console.log(`Email sent to ${receiveremail}: ${info.response}`);
+            resolve(info);
+          }
+        });
+      }, i * 10000); // Delay of 10 seconds
     });
   });
   
