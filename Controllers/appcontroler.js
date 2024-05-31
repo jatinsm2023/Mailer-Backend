@@ -29,7 +29,7 @@ const signup = async (req, res) => {
 };
 
 const getbill = (req, res) => {
-  const { RECIEVER_MAILS, MAIL_BODY, MAIL_SUBJECT, EMAIL, EMAIL_APP_PASSWORD } = req.body;
+  const { Name, RECIEVER_MAILS, MAIL_BODY, MAIL_SUBJECT, EMAIL, EMAIL_APP_PASSWORD } = req.body;
   const files = req.files;
   const receiveremails = JSON.parse(RECIEVER_MAILS);
   // console.log(receiveremails)
@@ -54,7 +54,10 @@ const getbill = (req, res) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         let message = {
-          from: EMAIL,
+          from: {
+            name: Name,
+            address: EMAIL
+          },
           to: receiveremails[i],
           subject: MAIL_SUBJECT,
           html: `<div style="white-space: pre-wrap;">${MAIL_BODY}</div>`,
