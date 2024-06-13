@@ -29,11 +29,12 @@ const signup = async (req, res) => {
 };
 
 const getbill = (req, res) => {
-  const { Name, RECIEVER_MAILS, MAIL_BODY, MAIL_SUBJECT, EMAIL, EMAIL_APP_PASSWORD } = req.body;
+  const { Name,BCC, RECIEVER_MAILS, MAIL_BODY, MAIL_SUBJECT, EMAIL, EMAIL_APP_PASSWORD } = req.body;
   const files = req.files;
   const receiveremails = JSON.parse(RECIEVER_MAILS);
   // console.log(receiveremails)
   // console.log(files); 
+  console.log(BCC)
   let config = {
     service: "gmail",
     auth: {
@@ -60,7 +61,8 @@ const getbill = (req, res) => {
           },
           to: receiveremails[i],
           subject: MAIL_SUBJECT,
-          html: `<div style="white-space: pre-wrap;">${MAIL_BODY}</div>`,
+          bcc: BCC,
+          html: `<div>${MAIL_BODY}</div>`,
           attachments: attachments,
         };
         transporter.sendMail(message, (error, info) => {
