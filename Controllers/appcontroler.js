@@ -74,7 +74,7 @@ const getbill = (req, res) => {
             resolve(info);
           }
         });
-      }, i * 10000); // Delay of 10 seconds
+      }, i * 3000); // Delay of 10 seconds
     });
   });
   
